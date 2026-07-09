@@ -15,21 +15,24 @@ _(add screenshots here after recording demo)_
 ---
 
 ## Architecture Overview
+
+```
 src/
 ├── types/
-│   └── triage.ts          TypeScript interfaces + priority color mapping
+│   └── triage.ts           TypeScript interfaces + priority color mapping
 ├── db/
-│   └── database.ts        SQLite persistence layer (init, save, query, update)
+│   └── database.ts         SQLite persistence layer (init, save, query, update)
 ├── services/
-│   ├── mockApi.ts         Simulated backend API (2s delay, 20% failure rate)
-│   └── syncService.ts     Background sync queue + NetInfo connectivity listener
+│   ├── mockApi.ts          Simulated backend API (2s delay, 20% failure rate)
+│   └── syncService.ts      Background sync queue + NetInfo listener
 ├── store/
-│   ├── store.ts           Redux store configuration
-│   └── triageSlice.ts     Triage records state + sync status management
+│   ├── store.ts            Redux store configuration
+│   └── triageSlice.ts      Triage records state + sync status management
 └── components/
-├── PrioritySelector.tsx   Color-coded P1–P5 priority picker
-├── SyncStatusBar.tsx      Pending/syncing status banner
-└── TriageForm.tsx         Main triage intake form with validation
+    ├── PrioritySelector.tsx    Color-coded P1–P5 priority picker
+    ├── SyncStatusBar.tsx       Pending/syncing status banner
+    └── TriageForm.tsx          Main triage intake form with validation
+```
 
 ---
 
