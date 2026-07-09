@@ -1,20 +1,90 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
+import {
+  StatusBar,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+} from 'react-native';
+import { Provider } from 'react-redux';
+import { store } from './src/store/store';
+import { initDatabase, getAllRecords } from './src/db/database';
+import { setRecords } from './src/store/triageSlice';
+import { startSyncService, stopSyncService } from './src/services/syncService';
+import TriageForm from './src/components/TriageForm';
+import SyncStatusBar from './src/components/SyncStatusBar';
+
+function AppContent() {
+  useEffect(() => {
+    // Initialize SQLite database
+    initDatabase();
+
+    // Load existing records from SQLite into Redux store
+    const existing = getAllRecords();
+    store.dispatch(setRecords(existing));
+
+    // Start background sync listener
+    startSyncService();
+
+    return () => {
+      // Clean up on unmount
+      stopSyncService();
+    };
+  }, []);
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.headerBadge}>🚑 EMKF</Text>
+          <Text style={styles.headerTitle}>Paramedic Triage</Text>
+        </View>
+        <SyncStatusBar />
+      </View>
+
+      {/* Form */}
+      <TriageForm />
+    </SafeAreaView>
+  );
+}
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+      <AppContent />
+    </Provider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#0F172A',
+  },
+  header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1E293B',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  headerBadge: {
+    fontSize: 18,
+  },
+  headerTitle: {
+    color: '#F1F5F9',
+    fontSize: 18,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
 });
