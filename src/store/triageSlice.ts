@@ -33,26 +33,25 @@ const triageSlice = createSlice({
       }
     },
     updateRecordSyncStatus: (
-      state,
-      action: PayloadAction<{
+    state,
+    action: PayloadAction<{
         id: string;
         syncStatus: SyncStatus;
         syncedAt?: string;
-      }>
+    }>
     ) => {
-      const record = state.records.find((r) => r.id === action.payload.id);
-      if (record) {
-        const wasPending =
-          record.syncStatus === 'pending' || record.syncStatus === 'failed';
+    const record = state.records.find((r) => r.id === action.payload.id);
+    if (record) {
         record.syncStatus = action.payload.syncStatus;
         if (action.payload.syncedAt) {
-          record.syncedAt = action.payload.syncedAt;
+        record.syncedAt = action.payload.syncedAt;
         }
-        const isNowSynced = action.payload.syncStatus === 'synced';
-        if (wasPending && isNowSynced) {
-          state.pendingCount = Math.max(0, state.pendingCount - 1);
-        }
-      }
+    }
+    // Recalculate pendingCount from scratch after every status change
+    // rather than incrementing/decrementing — avoids drift bugs
+    state.pendingCount = state.records.filter(
+        (r) => r.syncStatus === 'pending' || r.syncStatus === 'failed'
+    ).length;
     },
     setIsSyncing: (state, action: PayloadAction<boolean>) => {
       state.isSyncing = action.payload;

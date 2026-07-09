@@ -9,25 +9,26 @@ import {
 import { Provider } from 'react-redux';
 import { store } from './src/store/store';
 import { initDatabase, getAllRecords } from './src/db/database';
-import { setRecords } from './src/store/triageSlice';
-import { startSyncService, stopSyncService } from './src/services/syncService';
+import { setRecords, updateRecordSyncStatus } from './src/store/triageSlice';
+import { startSyncService, stopSyncService, registerSyncCallback } from './src/services/syncService';
 import TriageForm from './src/components/TriageForm';
 import SyncStatusBar from './src/components/SyncStatusBar';
 
 function AppContent() {
   useEffect(() => {
-    // Initialize SQLite database
     initDatabase();
 
-    // Load existing records from SQLite into Redux store
     const existing = getAllRecords();
     store.dispatch(setRecords(existing));
 
-    // Start background sync listener
+    // Register callback so sync service can update Redux store
+    registerSyncCallback((id, syncStatus, syncedAt) => {
+      store.dispatch(updateRecordSyncStatus({ id, syncStatus, syncedAt }));
+    });
+
     startSyncService();
 
     return () => {
-      // Clean up on unmount
       stopSyncService();
     };
   }, []);
