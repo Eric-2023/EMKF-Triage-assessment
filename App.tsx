@@ -5,6 +5,7 @@ import {
   StyleSheet,
   View,
   Text,
+  Platform,
 } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from './src/store/store';
@@ -43,8 +44,10 @@ function AppContent() {
           <Text style={styles.headerBadge}>🚑 EMKF</Text>
           <Text style={styles.headerTitle}>Paramedic Triage</Text>
         </View>
-        <SyncStatusBar />
       </View>
+
+      {/* Sync status banner — full width below header */}
+      <SyncStatusBar />
 
       {/* Form */}
       <TriageForm />
@@ -64,11 +67,11 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: '#0F172A',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -81,6 +84,9 @@ const styles = StyleSheet.create({
   },
   headerBadge: {
     fontSize: 18,
+    color: '#F1F5F9',
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   headerTitle: {
     color: '#F1F5F9',
