@@ -6,6 +6,7 @@ Built for the Emergency Medicine Kenya Foundation (EMKF) technical assessment.
 
 **Stack:** React Native · Expo SDK 54 · TypeScript · Redux Toolkit · expo-sqlite
 
+**Repo:** https://github.com/Eric-2023/EMKF-Triage-assessment
 ---
 
 ## Demo Video
@@ -16,17 +17,14 @@ Built for the Emergency Medicine Kenya Foundation (EMKF) technical assessment.
 
 ## Screenshots
 
-**Validation — empty field errors**
-![Validation](screenshots/validation.jpeg)
-
-**Priority P1 Critical — high visibility red**
-![P1 Critical](screenshots/p1-critical.jpeg)
-
-**Offline — record saved locally, pending sync**
-![Offline pending](screenshots/offline-pending.jpeg)
-
-**Online — syncing to server**
-![Online sync](screenshots/online-sync.jpeg)
+<table>
+  <tr>
+    <td><img src="screenshots/validation.jpeg" width="180"/><br/><sub>Validation errors</sub></td>
+    <td><img src="screenshots/p1-critical.jpeg" width="180"/><br/><sub>P1 Critical</sub></td>
+    <td><img src="screenshots/offline-pending.jpeg" width="180"/><br/><sub>Offline pending</sub></td>
+    <td><img src="screenshots/online-sync.jpeg" width="180"/><br/><sub>Online syncing</sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -67,7 +65,11 @@ This is the core architectural requirement of the assessment. The flow:
      when connected."
 4. **NetInfo listener fires** the moment connectivity is restored →
    `runSyncQueue()` reads all `pending` / `failed` records from SQLite
-   and uploads them sequentially to the mock API
+   and uploads them sequentially to the mock API.    
+   A 5-second polling fallback runs alongside the listener as a safety net
+   for cases where Android's power management pauses the NetInfo event
+   listener while the device is offline. An AppState listener also triggers
+   a sync when the app returns to the foreground.
 5. **On success** → record marked `synced` in both SQLite and Redux store,
    `pendingCount` decrements, banner disappears when queue is empty
 6. **On failure** → record marked `failed`, will be retried on the next
