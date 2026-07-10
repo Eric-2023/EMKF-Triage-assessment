@@ -19,6 +19,7 @@ export const initDatabase = (): void => {
 };
 
 export const saveTriageRecord = (record: TriageRecord): void => {
+  console.log('[DB] Saving record:', record.id, 'syncStatus:', record.syncStatus);
   db.runSync(
     `INSERT INTO triage_records 
       (id, patientName, conditionDescription, priorityLevel, status, syncStatus, createdAt, syncedAt)
@@ -34,11 +35,16 @@ export const saveTriageRecord = (record: TriageRecord): void => {
       record.syncedAt ?? null,
     ]
   );
+  console.log('[DB] Record saved successfully:', record.id);
 };
 
 export const getPendingRecords = (): TriageRecord[] => {
   return db.getAllSync<TriageRecord>(
-    `SELECT * FROM triage_records WHERE syncStatus = 'pending' OR syncStatus = 'failed' ORDER BY createdAt ASC`
+    `SELECT * FROM triage_records 
+     WHERE syncStatus = 'pending' 
+     OR syncStatus = 'failed'
+     OR syncStatus = 'syncing'
+     ORDER BY createdAt ASC`
   );
 };
 

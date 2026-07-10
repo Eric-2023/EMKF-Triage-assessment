@@ -31,6 +31,7 @@ const runSyncQueue = async (): Promise<void> => {
 
   try {
     const pendingRecords = getPendingRecords();
+    console.log(`[SyncService] Found ${pendingRecords.length} pending records`);
     if (pendingRecords.length === 0) {
       isSyncing = false;
       return;
@@ -69,19 +70,37 @@ const runSyncQueue = async (): Promise<void> => {
   }
 };
 
+let syncInterval: ReturnType<typeof setInterval> | null = null;
+
 // Starts the NetInfo listener. Called once on app startup.
 // Triggers sync automatically the moment connectivity is restored —
 // no user intervention required, per the spec's requirement.
+// Note: isInternetReachable can return null on Android even when
+// connected, so we only check isConnected to avoid missing reconnection
+// events. A polling fallback runs every 5 seconds as a safety net
+// for cases where the NetInfo listener misses airplane mode toggles
+// in Expo Go on Android.
 export const startSyncService = (): void => {
-  if (unsubscribeNetInfo) return; // already started
+  if (unsubscribeNetInfo) return;
 
+  // Primary: event-driven listener
   unsubscribeNetInfo = NetInfo.addEventListener((state: NetInfoState) => {
-    const isConnected = state.isConnected && state.isInternetReachable;
+    const isConnected = state.isConnected === true;
     if (isConnected) {
       console.log('[SyncService] Connection restored — starting sync queue');
       runSyncQueue();
     }
   });
+
+  // Fallback: poll every 5 seconds in case listener misses the event
+  syncInterval = setInterval(() => {
+    NetInfo.fetch().then((state) => {
+      const isConnected = state.isConnected === true;
+      if (isConnected) {
+        runSyncQueue();
+      }
+    });
+  }, 5000);
 
   console.log('[SyncService] Network listener started');
 };
@@ -91,14 +110,20 @@ export const stopSyncService = (): void => {
   if (unsubscribeNetInfo) {
     unsubscribeNetInfo();
     unsubscribeNetInfo = null;
+  }
+  if (syncInterval) {
+    clearInterval(syncInterval);
+    syncInterval = null;
     console.log('[SyncService] Network listener stopped');
   }
 };
 
-// Manually trigger a sync — used when a record is saved while online
+// Manually trigger a sync — used when a record is saved while online.
+// Uses isConnected only (not isInternetReachable) for consistency
+// with the NetInfo listener above.
 export const triggerSync = (): void => {
   NetInfo.fetch().then((state) => {
-    const isConnected = state.isConnected && state.isInternetReachable;
+    const isConnected = state.isConnected === true;
     if (isConnected) runSyncQueue();
   });
 };

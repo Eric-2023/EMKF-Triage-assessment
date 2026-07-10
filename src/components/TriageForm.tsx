@@ -51,46 +51,48 @@ export default function TriageForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validate()) return;
-    setIsSubmitting(true);
-    setSuccessMessage(null);
+ const handleSubmit = async () => {
+  if (!validate()) return;
+  setIsSubmitting(true);
+  setSuccessMessage(null);
 
-    try {
-      const netState = await NetInfo.fetch();
-      const isOnline = netState.isConnected && netState.isInternetReachable;
+  try {
+    const netState = await NetInfo.fetch();
+    const isOnline = netState.isConnected && netState.isInternetReachable;
 
-      const record: TriageRecord = {
-        id: Crypto.randomUUID(),
-        patientName: form.patientName.trim(),
-        conditionDescription: form.conditionDescription.trim(),
-        priorityLevel: form.priorityLevel as PriorityLevel,
-        status: form.status as TriageStatus,
-        syncStatus: 'pending',
-        createdAt: new Date().toISOString(),
-      };
+    const record: TriageRecord = {
+      id: Crypto.randomUUID(),
+      patientName: form.patientName.trim(),
+      conditionDescription: form.conditionDescription.trim(),
+      priorityLevel: form.priorityLevel as PriorityLevel,
+      status: form.status as TriageStatus,
+      syncStatus: 'pending',
+      createdAt: new Date().toISOString(),
+    };
 
-      // Always save locally first — guarantees no data loss
-      saveTriageRecord(record);
-      dispatch(addRecord(record));
+    // Always save locally first — guarantees no data loss
+    saveTriageRecord(record);
+    dispatch(addRecord(record));
 
-      if (isOnline) {
-        setSuccessMessage('Record saved — syncing to server...');
-        triggerSync();
-      } else {
-        setSuccessMessage(
-          'Offline — record saved locally. Will sync automatically when connected.'
-        );
-      }
-
-      setForm(initialForm);
-      setErrors({});
-    } catch (error) {
-      setSuccessMessage('Error saving record. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+    if (isOnline) {
+      setSuccessMessage('Record saved — syncing to server...');
+      triggerSync();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } else {
+      setSuccessMessage(
+        'Offline — record saved locally. Will sync automatically when connected.'
+      );
+      setTimeout(() => setSuccessMessage(null), 4000);
     }
-  };
+
+    setForm(initialForm);
+    setErrors({});
+  } catch (error) {
+    setSuccessMessage('Error saving record. Please try again.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const STATUS_OPTIONS: TriageStatus[] = ['Pending', 'In-Transit'];
 

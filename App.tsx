@@ -6,12 +6,13 @@ import {
   View,
   Text,
   Platform,
+  AppState,
 } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from './src/store/store';
 import { initDatabase, getAllRecords } from './src/db/database';
 import { setRecords, updateRecordSyncStatus } from './src/store/triageSlice';
-import { startSyncService, stopSyncService, registerSyncCallback } from './src/services/syncService';
+import { startSyncService, stopSyncService, registerSyncCallback,triggerSync } from './src/services/syncService';
 import TriageForm from './src/components/TriageForm';
 import SyncStatusBar from './src/components/SyncStatusBar';
 
@@ -22,15 +23,26 @@ function AppContent() {
     const existing = getAllRecords();
     store.dispatch(setRecords(existing));
 
-    // Register callback so sync service can update Redux store
     registerSyncCallback((id, syncStatus, syncedAt) => {
       store.dispatch(updateRecordSyncStatus({ id, syncStatus, syncedAt }));
     });
 
     startSyncService();
 
+    // Trigger sync when app comes back to foreground — handles the case
+    // where the polling interval was paused by Android while offline.
+    // When the paramedic turns airplane mode off and returns to the app,
+    // this fires immediately rather than waiting for the next poll cycle.
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        console.log('[AppState] App foregrounded — triggering sync');
+        triggerSync();
+      }
+    });
+
     return () => {
       stopSyncService();
+      appStateSubscription.remove();
     };
   }, []);
 
