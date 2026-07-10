@@ -8,9 +8,25 @@ Built for the Emergency Medicine Kenya Foundation (EMKF) technical assessment.
 
 ---
 
+## Demo Video
+
+[▶ Watch 60-second demo — offline save + auto-sync](https://www.loom.com/share/de4f6735a3b44fa6a12b8cfdbadc5dc8)
+
+---
+
 ## Screenshots
 
-_(add screenshots here after recording demo)_
+**Validation — empty field errors**
+![Validation](screenshots/validation.jpeg)
+
+**Priority P1 Critical — high visibility red**
+![P1 Critical](screenshots/p1-critical.jpeg)
+
+**Offline — record saved locally, pending sync**
+![Offline pending](screenshots/offline-pending.jpeg)
+
+**Online — syncing to server**
+![Online sync](screenshots/online-sync.jpeg)
 
 ---
 
