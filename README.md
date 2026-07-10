@@ -26,6 +26,9 @@ Built for the Emergency Medicine Kenya Foundation (EMKF) technical assessment.
   </tr>
 </table>
 
+**SQLite sync verification — all records marked `synced` with timestamps**
+![SQLite proof](screenshots/sqlite-sync-proof.jpeg)
+
 ---
 
 ## Architecture Overview

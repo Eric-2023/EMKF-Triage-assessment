@@ -20,8 +20,15 @@ function AppContent() {
   useEffect(() => {
     initDatabase();
 
-    const existing = getAllRecords();
-    store.dispatch(setRecords(existing));
+// Temporary debug — remove before submission
+const existing = getAllRecords();
+console.log('[DB] All records on startup:', JSON.stringify(existing.map(r => ({
+  id: r.id.slice(0, 8),
+  patientName: r.patientName,
+  syncStatus: r.syncStatus,
+  syncedAt: r.syncedAt,
+}))));
+store.dispatch(setRecords(existing));
 
     registerSyncCallback((id, syncStatus, syncedAt) => {
       store.dispatch(updateRecordSyncStatus({ id, syncStatus, syncedAt }));
