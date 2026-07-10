@@ -1,3 +1,4 @@
+// Simulates POST /api/v1/triage per the assessment spec
 import { TriageRecord } from '../types/triage';
 
 // Simulates a real backend API per the spec's requirement —
