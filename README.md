@@ -186,8 +186,6 @@ would generate in the field.
 
 **StyleSheet.create() over NativeWind**
 NativeWind v4 has known setup friction with Expo Go SDK 54.
-Given the time constraints of this assessment, plain StyleSheet
-is more reliable and matches existing HomePurse/Cakeland patterns.
 The UI achieves all required visual goals without a CSS framework.
 
 ---
